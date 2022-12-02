@@ -1,0 +1,2 @@
+DEBUG_MODE = False
+TEST_MODE = False
