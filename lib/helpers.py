@@ -28,3 +28,10 @@ def get_strings_by_lines(fname):
     return [
         line.strip('\n') for line in in_str.split('\n') if line
     ]
+
+
+def get_all_strings_by_lines(fname):
+    in_str = get_input(fname)
+    return [
+        line.strip('\n') for line in in_str.split('\n')
+    ]
