@@ -1,22 +1,17 @@
 from lib.helpers import log, get_strings_by_lines
 
 
-def part_1():
+def finder(length):
     signal = get_strings_by_lines('6.txt')[0]
     log(signal)
 
-    for idx in range(4, len(signal)):
-        if (len(set(signal[idx-4:idx])) == 4):
+    for idx in range(length, len(signal)):
+        if (len(set(signal[idx-length:idx])) == length):
             return idx
-
     return -1
+
+def part_1():
+    return finder(4)
 
 def part_2():
-    signal = get_strings_by_lines('6.txt')[0]
-    log(signal)
-
-    for idx in range(14, len(signal)):
-        if (len(set(signal[idx-14:idx])) == 14):
-            return idx
-
-    return -1
+    return finder(14)
