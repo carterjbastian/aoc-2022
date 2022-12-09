@@ -75,6 +75,7 @@ def part_1():
             visited.add(T)
             log(H)
             log(T)
+
     
     return len(visited)
 
@@ -89,5 +90,8 @@ def part_2():
             rope = move(d, rope)
             # Mark square as visited
             visited.add(rope[-1])
+        log(rope)
+
+    log(visited)
     
     return len(visited)
