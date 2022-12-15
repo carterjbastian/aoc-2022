@@ -1,5 +1,4 @@
 #!/bin/bash python3
-from lib.helpers import log, get_strings_by_lines
 import argparse
 import lib.config
 import importlib
@@ -25,6 +24,7 @@ lib.config.TEST_MODE = args.test
 lib.config.DAY_NUMBER = args.day
 
 # Import helper functions
+from lib.helpers import log, get_strings_by_lines
 
 if __name__ == "__main__":
     # import the library dynamically
