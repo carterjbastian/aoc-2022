@@ -1,7 +1,7 @@
 #!/bin/bash python3
+from lib.helpers import log, get_strings_by_lines
 import argparse
 import lib.config
-import problems
 import importlib
 
 parser = argparse.ArgumentParser(prog="advent_of_code_2020")
@@ -11,8 +11,10 @@ parser.add_argument("day", type=int, help="Which advent day?")
 parser.add_argument("part", type=int, help="Which part of this day to run?")
 
 # Optional Arguments (Test mode and Debug mode)
-parser.add_argument("-t", "--test", help="Run with test inputs", action="store_true")
-parser.add_argument("-d", "--debug", help="Run with logging", action="store_true")
+parser.add_argument(
+    "-t", "--test", help="Run with test inputs", action="store_true")
+parser.add_argument(
+    "-d", "--debug", help="Run with logging", action="store_true")
 
 # Parse arguments
 args = parser.parse_args()
@@ -23,7 +25,6 @@ lib.config.TEST_MODE = args.test
 lib.config.DAY_NUMBER = args.day
 
 # Import helper functions
-from lib.helpers import log, get_strings_by_lines
 
 if __name__ == "__main__":
     # import the library dynamically
@@ -40,7 +41,7 @@ if __name__ == "__main__":
             if str(computed) == answer:
                 print(f"Part 1: PASSED ({computed})")
             else:
-                print(f"Part 1: FAILED")
+                print("Part 1: FAILED")
                 print(f"\tcomputed: {computed}")
                 print(f"\tintended: {answer}")
         if args.part != 1:
@@ -51,7 +52,7 @@ if __name__ == "__main__":
             if str(computed) == answer:
                 print(f"Part 2: PASSED ({computed})")
             else:
-                print(f"Part 2: FAILED")
+                print("Part 2: FAILED")
                 print(f"\tcomputed: {computed}")
                 print(f"\tintended: {answer}")
     else:

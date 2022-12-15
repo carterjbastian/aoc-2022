@@ -10,8 +10,10 @@ def finder(length):
             return idx
     return -1
 
+
 def part_1():
     return finder(4)
+
 
 def part_2():
     return finder(14)

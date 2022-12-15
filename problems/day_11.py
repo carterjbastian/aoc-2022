@@ -2,9 +2,10 @@ from lib.helpers import log, get_input
 
 monkeys = []
 
+
 class Monkey():
     def __init__(self, initList, testDivBy, operation, throwTrue, throwFalse, ):
-        self.queue = initList 
+        self.queue = initList
         self.testDivBy = testDivBy
         self.operation = operation
         self.throwTrue = throwTrue
@@ -15,7 +16,7 @@ class Monkey():
     def inspection(self, inspect=True):
         global monkeys
         for item in self.queue:
-            self.count += 1 # Item Counter
+            self.count += 1  # Item Counter
 
             # Operation and division
             item = self.operation(item)
@@ -36,16 +37,20 @@ class Monkey():
     def __repr__(self):
         return f"{self.queue}"
 
+
 def create_lambda(funcStr):
     # I hate python scopes
     operand = funcStr.split(" ")[1]
-    func = lambda x: x
+    def func(x): return x
     if "*" == funcStr[0]:
         return lambda x: x * (x if operand == "old" else int(operand))
     else:
         return lambda x: x + (x if operand == "old" else int(operand))
 
+
 common_multiple = 1
+
+
 def make_monkeys():
     global monkeys
     global common_multiple
@@ -72,6 +77,7 @@ def make_monkeys():
         # Make the monkey
         monkeys += [Monkey(queue, testDivBy, func, throwTrue, throwFalse)]
 
+
 def part_1():
     global monkeys
     make_monkeys()
@@ -82,6 +88,7 @@ def part_1():
 
     counts = sorted([m.count for m in monkeys])
     return counts[-2] * counts[-1]
+
 
 def part_2():
     global monkeys

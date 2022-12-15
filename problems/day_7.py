@@ -1,8 +1,9 @@
 from collections import deque
 from lib.helpers import log, get_strings_by_lines
 
+
 class Tree(object):
-    def __init__(self, name, fsize = 0):
+    def __init__(self, name, fsize=0):
         self.name = name
         self.size = fsize
 
@@ -17,13 +18,17 @@ class Tree(object):
         return s
 
 # Recursive DFS to compute sizes at each node
+
+
 def get_size(node):
     if node.size == 0:
         if len(node.children) > 0:
-            node.size = sum([get_size(child) for child in node.children.values()])
+            node.size = sum([get_size(child)
+                            for child in node.children.values()])
         else:
             node.size = 0
     return node.size
+
 
 def parse_tree():
     rules = get_strings_by_lines('7.txt')
@@ -67,7 +72,9 @@ def parse_tree():
     get_size(root)
     return root
 
+
 CAP = 100000
+
 
 def part_1():
     root = parse_tree()
@@ -80,12 +87,15 @@ def part_1():
         if cur.size <= CAP:
             total += cur.size
         # Add subdirectories to the BFS Queue
-        queue.extend([node for node in cur.children.values() if len(node.children) > 0])
-    
+        queue.extend([node for node in cur.children.values()
+                     if len(node.children) > 0])
+
     return total
+
 
 AVAILABLE = 70000000
 REQUIRED = 30000000
+
 
 def part_2():
     root = parse_tree()
@@ -106,6 +116,7 @@ def part_2():
         if cur.size >= target and cur.size - target < closest.size - target:
             log(f"Replacing Best with: {cur.name} ({cur.size})")
             closest = cur
-        queue.extend([node for node in cur.children.values() if len(node.children) > 0])
-    
+        queue.extend([node for node in cur.children.values()
+                     if len(node.children) > 0])
+
     return closest.size

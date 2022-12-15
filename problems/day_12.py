@@ -3,6 +3,7 @@ from lib.helpers import log, get_strings_by_lines
 # Very math super cool
 INFINITY = 100000000000000000000000000
 
+
 def make_grid():
     rows = get_strings_by_lines('12.txt')
     grid = [[] for _ in range(len(rows))]
@@ -66,14 +67,16 @@ def shortest_path(grid, start, end):
     else:
         return INFINITY
 
+
 def part_1():
     grid, start, end, _ = make_grid()
     return shortest_path(grid, start, end)
 
+
 def part_2():
     grid, _, end, all_starts = make_grid()
     log(all_starts)
-    lowest = INFINITY # Infinity
+    lowest = INFINITY  # Infinity
     for start in all_starts:
         score = shortest_path(grid, start, end)
         if score < lowest:

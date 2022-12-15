@@ -12,6 +12,7 @@ symbol_map = {
     "Z": 3,
 }
 
+
 def part_1():
     input_arr = get_strings_by_lines('2.txt')
 
@@ -31,6 +32,7 @@ def part_1():
             cur_sum += me
 
     return cur_sum
+
 
 def part_2():
     input_arr = get_strings_by_lines('2.txt')

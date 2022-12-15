@@ -2,6 +2,7 @@ from lib.helpers import log, get_strings_by_lines
 
 SAND_INIT = (500, 0)
 
+
 def get_grid():
     strs = get_strings_by_lines('14.txt')
 
@@ -30,6 +31,7 @@ def get_grid():
                 for x in range(min(x1, x2), max(x1, x2) + 1):
                     filled.add((x, y1))
     return filled, max_depth
+
 
 def part_1():
     filled, max_depth = get_grid()
@@ -62,9 +64,10 @@ def part_1():
             else:
                 # Place the sand
                 log(f"Resting at {x, y}")
-                filled.add((x,y))
+                filled.add((x, y))
                 total += 1
                 break
+
 
 def part_2():
     filled, max_depth = get_grid()
@@ -96,11 +99,11 @@ def part_2():
             else:
                 # Have we hit the end?
                 if x == 500 and y == 0:
-                    log(f"Hit the stop")
+                    log("Hit the stop")
                     return total + 1
 
                 # Place the sand
                 log(f"Resting at {x, y}")
-                filled.add((x,y))
+                filled.add((x, y))
                 total += 1
                 break

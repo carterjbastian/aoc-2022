@@ -1,5 +1,6 @@
 from lib.helpers import log, get_strings_by_lines
 
+
 def move(direction, knots):
     # Move the Head
     if direction == "R":
@@ -55,7 +56,6 @@ def move(direction, knots):
             elif Y > H[1]:
                 Y -= 1
 
-
         knots[idx] = (X, Y)
 
     return knots
@@ -75,13 +75,14 @@ def part_1():
             visited.add(T)
             log(H)
             log(T)
-    
+
     return len(visited)
+
 
 def part_2():
     rows = get_strings_by_lines('9.txt')
 
-    rope = [(0,0)] * 10
+    rope = [(0, 0)] * 10
     visited = set([(0, 0)])
     for row in rows:
         d, count = row.split(' ')
@@ -89,5 +90,5 @@ def part_2():
             rope = move(d, rope)
             # Mark square as visited
             visited.add(rope[-1])
-    
+
     return len(visited)

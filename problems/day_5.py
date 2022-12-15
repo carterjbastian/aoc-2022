@@ -25,6 +25,7 @@ if TEST_MODE:
 else:
     stacks = REAL_STACKS
 
+
 def simulate(part):
     input_arr = get_strings_by_lines('5.txt')
 
@@ -43,8 +44,10 @@ def simulate(part):
 
     return "".join([v[-1] for v in stacks.values()])
 
+
 def part_1():
     return simulate(1)
-            
+
+
 def part_2():
     return simulate(2)

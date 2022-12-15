@@ -1,5 +1,6 @@
 from lib.helpers import log, get_strings_by_lines
 
+
 def parse_grid():
     rows = get_strings_by_lines('8.txt')
     grid = [list() for i in range(len(rows))]
@@ -8,6 +9,7 @@ def parse_grid():
             grid[idx].append((int(c), False))
 
     return grid
+
 
 def part_1():
     grid = parse_grid()
@@ -22,7 +24,7 @@ def part_1():
             if val > tallest_up:
                 grid[idx][col] = (val, True)
                 tallest_up = val
-            
+
             # Bottom Up
             val, seen = grid[(-1 * idx) - 1][col]
             if val > tallest_down:
@@ -39,7 +41,7 @@ def part_1():
             if val > tallest_left:
                 grid[row][idx] = (val, True)
                 tallest_left = val
-            
+
             # Bottom Up
             val, seen = grid[row][(-1 * idx) - 1]
             if val > tallest_right:
@@ -53,6 +55,7 @@ def part_1():
             total += (1 if grid[y][x][1] else 0)
 
     return total
+
 
 def part_2():
     grid = parse_grid()
@@ -91,7 +94,8 @@ def part_2():
             # Multiply together
             score = left_score * right_score * up_score * down_score
             # Debug info to print
-            grid[y][x] = (grid[y][x][0], grid[y][x][1], score, [left_score, right_score, up_score, down_score])
+            grid[y][x] = (grid[y][x][0], grid[y][x][1], score, [
+                          left_score, right_score, up_score, down_score])
             if score > max_score:
                 max_score = score
 

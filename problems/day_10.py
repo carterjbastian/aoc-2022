@@ -10,11 +10,12 @@ add_next = 0
 clock = 1
 total = 0
 
+
 def cycle(init_cmd, args):
     global total
     global clock
-    global add_next 
-    global add_in_2 
+    global add_next
+    global add_in_2
     global REGISTERS
 
     instrs = [init_cmd]
@@ -34,12 +35,11 @@ def cycle(init_cmd, args):
         # Part 2
         position = (clock - 1) % 40
         if REGISTERS["X"] - 1 <= position and REGISTERS["X"] + 1 >= position:
-            print("# ", end="") 
+            print("# ", end="")
         else:
             print(". ", end="")
         if position == 39:
-            print("") # newline
-            
+            print("")  # newline
 
         next_up = 0
         if cmd == "noop":
@@ -57,6 +57,7 @@ def cycle(init_cmd, args):
         add_in_2 = next_up
         clock += 1
 
+
 def part_1():
     rows = get_strings_by_lines('10.txt')
 
@@ -66,6 +67,4 @@ def part_1():
         vals = instr.split(' ')
         cycle(vals[0], vals[-1:])
 
-    
     return total
-

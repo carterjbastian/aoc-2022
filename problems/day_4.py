@@ -1,5 +1,6 @@
 from lib.helpers import log, get_strings_by_lines
 
+
 def part_1():
     input_arr = get_strings_by_lines('4.txt')
 
@@ -14,6 +15,7 @@ def part_1():
             cur_sum += 1
 
     return cur_sum
+
 
 def part_2():
     input_arr = get_strings_by_lines('4.txt')
