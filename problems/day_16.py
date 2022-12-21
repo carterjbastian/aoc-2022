@@ -1,119 +1,127 @@
+import heapq
 from lib.helpers import log, get_strings_by_lines
 
 
-class Node(object):
-    def __init__(self, name):
-        self.name = name
-        self.pressure = 0
+pressures = {}
+paths = {}
 
-        self.tunnels = {}
-        self.parent = None
-
-    def __repr__(self):
-        return self.name
+# Keep these two lists with only the nodes that have pressure
+index_of = {}
+ordered_list = []
 
 
 def get_nodes():
+    global pressures, paths, index_of, ordered_list
     lines = [l[6:] for l in get_strings_by_lines('16.txt')]
 
-    nodes = {}
-    idx = 0
-    for line in lines:
+    for idx, line in enumerate(lines):
         valve = line[0:2]
         _, rest = line.split('rate=')
         rateStr, tStr = rest.split('; ')
         rate = int(rateStr)
         tunnels = [s[-2:] for s in tStr.split(', ')]
 
-        if valve not in nodes:
-            nodes[valve] = Node(valve)
-        nodes[valve].pressure = rate
-
-        # Add new valves as children
-        for t in tunnels:
-            if t not in nodes:
-                nodes[t] = Node(t)
-            nodes[valve].tunnels[t] = nodes[t]
-
-        if idx == 0:
-            first = nodes[valve]
-        idx += 1
-
-    return nodes, first
+        pressures[valve] = rate
+        paths[valve] = [t for t in tunnels]
+        if rate > 0:
+            ordered_list += [valve]
+            index_of[valve] = len(ordered_list) - 1
 
 
-class Runner():
-    def __init__(self, next_node, visited, opened, so_far):
-        self.next_node = next_node
-        self.visited = visited
-        self.opened = opened
-        self.so_far = so_far
+# Find the minimum distance from start node to every other node with pressure
+def dijkstra(start):
+    global paths
+    distances = {start: 0}
+    visited = set()
+    queue = [(0, start)]
 
-    def __str__(self):
-        return (
-            self.next_node.name + str(self.visited) +
-            str(self.opened) + str(self.so_far)
-        )
+    while queue:
+        distance, node = heapq.heappop(queue)
+        visited.add(node)
 
-    def __hash__(self):
-        return hash(str(self))
+        for neighbor in paths[node]:
+            if neighbor in visited:
+                continue
+            new_distance = distance + 1
+            if neighbor not in distances or new_distance < distances[neighbor]:
+                distances[neighbor] = new_distance
+                heapq.heappush(queue, (new_distance, neighbor))
 
-    def __eq__(self, other):
-        return str(self) == str(other)
+    return distances
+
+
+CACHE = {}
+
+
+def dynamic_solve(cur_node, opened, tick):
+    global CACHE, pressures, paths, min_distances
+    key = (cur_node, opened, tick)
+    # log(f"Checking {cur_node} with {opened} at {so_far} with {tick} left")
+
+    # Check Cache for the answer
+    if key in CACHE:
+        # log("Cache Hit: " + key + " " + str(CACHE[key]))
+        return CACHE[key]
+
+    best_remaining = 0
+    if tick > 0:  # Base Case
+        # Try going down each of the tunnels
+        for tunnel in ordered_list:
+            mask = 1 << index_of[tunnel]
+            dist = min_distances[cur_node][tunnel]
+            if (not (opened & mask)) and (tick - (dist + 1) >= 0):
+                # Go there and open it
+                possibility = (
+                    dynamic_solve(tunnel, opened | mask, tick - (dist + 1)) +
+                    pressures[tunnel] * (tick - (dist + 1)))
+                if possibility > best_remaining:
+                    best_remaining = possibility
+    elif tick < 0:
+        log(f"Error: tick is {tick}")
+        return 0
+
+    # Cache answer
+    CACHE[key] = best_remaining
+    return best_remaining
+
+
+min_distances = {}
 
 
 def part_1():
-    nodes, start = get_nodes()
-    for _, node in nodes.items():
-        log(node)
+    global pressures, paths, index_of, ordered_list, min_distances, CACHE
+    get_nodes()
+    min_distances["AA"] = dijkstra("AA")
+    for node in ordered_list:
+        min_distances[node] = dijkstra(node)
 
     # Keep track of all possible places we could go
-    next_iter = set([Runner(start, set(), set(), 0)])
-    log([str(i) for i in next_iter])
+    return dynamic_solve("AA", 0, 30)
 
-    known_options = set()
-    # tick 30 times
-    for idx in range(30):
-        log(f"idx: {idx}: {len(next_iter)} options")
-        cur_iter = next_iter
 
-        next_iter = set()
+def part_2():
+    global pressures, paths, index_of, ordered_list, min_distances, CACHE
+    get_nodes()
 
-        for cur in cur_iter:
-            # Get values for this iteration
-            # log(cur)
-            node = cur.next_node
-            visited = cur.visited
-            opened = cur.opened
-            so_far = cur.so_far
+    min_distances["AA"] = dijkstra("AA")
+    for node in ordered_list:
+        min_distances[node] = dijkstra(node)
 
-            # Calculate pressure to add this iteration
-            next_pressure = sum([n.pressure for n in opened])
-            # log(f"so_far = {so_far} + {next_pressure} = {so_far + next_pressure}")
-            so_far += next_pressure
+    max_bits = 1 << len(ordered_list)
+    max_return = 0
+    for i in range(max_bits):
+        forged_1 = i
+        forged_2 = (max_bits - 1) ^ forged_1  # XOR to get inverse bitmask
 
-            # Add this node to visited set
-            visited.add(node)
+        if i % 1000 == 0:
+            log(f"Checking {i} of {max_bits}")
 
-            options_added = 0
-            # One option may be to open and stay here
-            if node not in opened and node.pressure > 0:
-                options_added += 1
-                next_iter.add(Runner(node, visited.copy(),
-                                     opened.copy() | {node}, so_far))
+        # Partition sets by pretending we've already opened some nodes
+        section_1 = dynamic_solve("AA", forged_1, 26)
+        section_2 = dynamic_solve("AA", forged_2, 26)
 
-            # For each tunnel, we can go to the next node
-            for tunnel in node.tunnels.values():
-                if idx >= 15 and so_far < 300:
-                    continue
-                if idx >= 25 and so_far < 900:
-                    continue
-                next_iter.add(
-                    Runner(tunnel, visited.copy(), opened.copy(), so_far)
-                )
+        if section_1 + section_2 > max_return:
+            max_return = section_1 + section_2
+            log(f"New Max: {max_return} with {forged_1} and {forged_2}")
 
-    # Find the max pressure
-    log(len(next_iter))
-    totals = max([n.so_far for n in next_iter], [
-                 known.so_far for known in known_options])
-    return max(totals)
+    return max_return
