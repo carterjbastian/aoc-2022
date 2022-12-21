@@ -119,7 +119,7 @@ def part_2():
         x, y, z = [int(x) + 1 for x in cube]
         arr[z][y][x] = True
 
-    # Fill in the X Plane
+    # Overfill in the X Plane
     for z in range(0, max_val + 1):
         for y in range(0, max_val + 1):
             # Get first and last index of True in this row
@@ -138,7 +138,7 @@ def part_2():
                 for x in range(first_x, last_x + 1):
                     filled_arr[z][y][x] = True
 
-    # Fill in the Y Plane
+    # Overfill in the Y Plane
     for z in range(0, max_val + 1):
         for x in range(0, max_val + 1):
             # Get first and last index of True in this row
@@ -157,7 +157,7 @@ def part_2():
                 for y in range(first_y, last_y + 1):
                     filled_arr[z][y][x] = True
 
-    # Fill in the Z Plane
+    # Overfill in the Z Plane
     for y in range(0, max_val + 1):
         for x in range(0, max_val + 1):
             # Get first and last index of True in this row
@@ -176,48 +176,52 @@ def part_2():
                 for z in range(first_z, last_z + 1):
                     filled_arr[z][y][x] = True
 
-    # Carve out the Y plane
-    for z in range(0, max_val + 1):
-        for x in range(0, max_val + 1):
-            for y in range(0, max_val + 1):
-                if not arr[z][y][x]:
-                    filled_arr[z][y][x] = False
-                else:
-                    break
-            for y in range(max_val, -1, -1):
-                if not arr[z][y][x]:
-                    filled_arr[z][y][x] = False
-                else:
-                    break
+    # visualize_poorly(filled_arr)
+    # Carve out the overfilling around the surface with flood-fill
+    queue = [(0, 0, 0), (1, 1, 1), (max_val, max_val, max_val),
+             (max_val - 1, max_val - 1, max_val - 1)]
+    visited = {(0, 0, 0), (max_val, max_val, max_val), (1, 1, 1),
+               (max_val - 1, max_val - 1, max_val - 1)}
+    while len(queue) > 0:
+        # pop next point off the queue (technically a stack, but whatever)
+        cX, cY, cZ = queue.pop()
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                for dz in [-1, 0, 1]:
+                    # What's the next potential point?
+                    nX, nY, nZ = cX + dx, cY + dy, cZ + dz
 
-    # Carve out the Z plane
-    for y in range(0, max_val + 1):
-        for x in range(0, max_val + 1):
-            for z in range(0, max_val + 1):
-                if not arr[z][y][x]:
-                    filled_arr[z][y][x] = False
-                else:
-                    break
-            for z in range(max_val, -1, -1):
-                if not arr[z][y][x]:
-                    filled_arr[z][y][x] = False
-                else:
-                    break
+                    # Skip visited points
+                    if (nX, nY, nZ) in visited:
+                        continue
 
-    # Carve out the X plane
-    for z in range(0, max_val + 1):
-        for y in range(0, max_val + 1):
-            for x in range(0, max_val + 1):
-                if not arr[z][y][x]:
-                    filled_arr[z][y][x] = False
-                else:
-                    break
-            for x in range(max_val, -1, -1):
-                if not arr[z][y][x]:
-                    filled_arr[z][y][x] = False
-                else:
-                    break
+                    # If the point is diagonal, skip it
+                    if abs(dx) + abs(dy) + abs(dz) != 1:
+                        continue
 
+                    # If the point is out of bounds, skip it
+                    if ((nX < 0 or nX > max_val) or  # X out of bounds
+                        (nY < 0 or nY > max_val) or  # Y out of bounds
+                            (nZ < 0 or nZ > max_val)):   # Z out of bounds
+                        continue
+
+                    # If point is on drop surface, skip (ending this carve out branch)
+                    if arr[nZ][nY][nX]:
+                        continue
+
+                    # Nice, we've found a lava point! Carve it out of filled_arr
+                    filled_arr[nZ][nY][nX] = False
+
+                    # Add it to the visited list and the queue
+                    visited.add((nX, nY, nZ))
+                    queue += [(nX, nY, nZ)]
+
+    log(max_val)
+    log(f"Total Volume: {(max_val + 1) ** 3} cubes")
+    log(f"Filled Volume: {sum([sum([sum(row) for row in z_plane]) for z_plane in filled_arr])} cubes")
+    log(f"Arr Volume: {sum([sum([sum(row) for row in z_plane]) for z_plane in arr])} cubes")
+    log(f"Visited Count: {len(visited)} cubes")
+    # visualize_poorly(filled_arr)
     return get_surface_area(filled_arr, max_val)
 
 
@@ -237,5 +241,5 @@ def visualize_poorly(arr):
 
     # Plot the boolean values as a surface plot
     ax.scatter(X, Y, Z, c=array, marker="s", cmap="binary",
-               edgecolor='face', alpha=.5, depthshade=True)
+               edgecolor='none', alpha=.2, depthshade=True)
     plt.show()
