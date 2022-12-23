@@ -12,6 +12,35 @@ from lib.helpers import log, get_strings_by_lines
 import math
 
 
+# Pretend robots are free if you have the materials. At each step,
+# buy every robot you can.
+def upper_bound(robots, ores, costs, time_remaining):
+    # At every time step, buy every robot we can
+    hypothetical_ores = ores.copy()
+    # Keep the new robots one time step behind!
+    hypothetical_robots = {
+        'ore': 0,
+        'clay': 0,
+        'obsidian': 0,
+        'geode': 0
+    }
+
+    for _ in range(time_remaining):
+        for material in ['ore', 'clay', 'obsidian', 'geode']:
+            hypothetical_ores[material] += (robots[material] +
+                                            hypothetical_robots[material])
+
+        for material in ['ore', 'clay', 'obsidian', 'geode']:
+            # Try buying each robot
+            for dep, cost in costs[material].items():
+                # Check if we have enough of the dependency after
+                # buying the robot some number of times anyway
+                if hypothetical_ores[dep] >= cost * (hypothetical_robots[material] + 1):
+                    hypothetical_robots[material] += 1
+
+    return hypothetical_ores['geode']
+
+
 def parse_blueprints():
     blueprints = []
     for line in get_strings_by_lines('19.txt'):
@@ -112,7 +141,12 @@ def get_max_obsidian(robots, ores, costs, max_costs, time_remaining):
             BEST_SO_FAR = new_ores['geode']
             log(f"New Best: {BEST_SO_FAR}")
 
-        # TODO: Prune with upper-bound heuristic
+        # Prune with upper-bound heuristic. If upper bound of this branch is less
+        # than a real result we've seen, we shouldn't both checking the branch
+        if upper_bound(
+                new_robots, new_ores, costs,
+                time_remaining - (turns_to_wait + 1)) <= BEST_SO_FAR:
+            continue
 
         # Recurse on this option
         new_options += 1
@@ -147,4 +181,22 @@ def part_1():
             costs, max_costs, 24)
         log(f"Found Quality {quality} for {idx}")
         total_quality += ((idx + 1) * quality)
+    return total_quality
+
+
+def part_2():
+    global BEST_SO_FAR
+    blueprints = parse_blueprints()
+
+    # Loop through each blueprint
+    total_quality = 1
+    for (costs, max_costs) in blueprints[:3]:
+        BEST_SO_FAR = 0
+        quality = get_max_obsidian(
+            # Init robots and ores
+            {'ore': 1, 'clay': 0, 'obsidian': 0, 'geode': 0},
+            {'ore': 0, 'clay': 0, 'obsidian': 0, 'geode': 0},
+            costs, max_costs, 32)
+        log(f"Found Geodes {quality}")
+        total_quality *= quality
     return total_quality
