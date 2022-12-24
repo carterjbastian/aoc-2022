@@ -30,50 +30,93 @@ def parse_inputs():
 
 
 CLOCKWISE_TURN = {
-    (0, 1): (1, 0),  # Moving up -> moving right
-    (1, 0): (0, -1),  # Moving right -> moving down
-    (0, -1): (-1, 0),  # Moving down -> moving left
-    (-1, 0): (0, 1),  # Moving left -> moving up
+    (0, -1): (1, 0),  # Moving up -> moving right
+    (1, 0): (0, 1),  # Moving right -> moving down
+    (0, 1): (-1, 0),  # Moving down -> moving left
+    (-1, 0): (0, -1),  # Moving left -> moving up
 }
 
 COUNTERCLOCKWISE_TURN = {
-    (0, 1): (-1, 0),  # Moving up -> moving left
-    (-1, 0): (0, -1),  # Moving left -> moving down
-    (0, -1): (1, 0),  # Moving down -> moving right
-    (1, 0): (0, 1),  # Moving right -> moving up
+    (0, -1): (-1, 0),  # Moving up -> moving left
+    (-1, 0): (0, 1),  # Moving left -> moving down
+    (0, 1): (1, 0),  # Moving down -> moving right
+    (1, 0): (0, -1),  # Moving right -> moving up
 }
 
+INF = 1000000000000  # yikes
 
-def move_once(grid, cold_grid, pos, dir, move):
+
+def move_once(grid, col_grid, pos, dir, move):
+    global INF
     cX, cY = pos
     dX, dY = dir
     moveCount, turnDir = move
 
+    max_row_len = max(len(r) for r in grid)
+    max_col_len = max(len(c) for c in col_grid)
+
     for _ in range(moveCount):
         nX, nY = cX + dX, cY + dY
 
-        # Figure out Wrap Logic!
-        # If we're out of bounds, wrap!
-        if 0 > nX:
-            # Horizontal wrap to first non-empty val on this row
+        # Wrap Logic!
+        # We are out of bounds horizontally if nX < 0 or nX >= len(grid[nY])
+        if nX < 0:
+            # Wrap around to the right
+            log("\t wrapping around to the right")
             nX = max(grid[nY].rfind('.'), grid[nY].rfind('#'))
-        if nX >= len(grid[nY]):
-            nX = min(grid[nY].index('.'), grid[nY].index('#'))
+        elif nY < 0:
+            # Wrap around to the bottom
+            log("\t wrapping around to the bottom")
+            nY = max(col_grid[nX].rfind('.'), col_grid[nX].rfind('#'))
+        elif nY >= max_col_len:
+            # Wrap around to the top
+            log("\t wrapping around to the top")
+            topDot = col_grid[nX].find('.')
+            topWall = col_grid[nX].find('#')
+            nY = min(topDot if topDot >= 0 else INF,
+                     topWall if topWall >= 0 else INF)
+        elif nX >= min(max_row_len, len(grid[nY])):
+            # Wrap around to the left
+            log("\t wrapping around to the left")
+            leftDot = grid[nY].find('.')
+            leftWall = grid[nY].find('#')
+            nX = min(leftDot if leftDot >= 0 else INF,
+                     leftWall if leftWall >= 0 else INF)
+        elif grid[nY][nX] == ' ':
+            if dX == -1:
+                # Wrap around to the right
+                log("\t wrapping around to the right 2")
+                nX = max(grid[nY].rfind('.'), grid[nY].rfind('#'))
+            elif dX == 1:
+                # Wrap around to left
+                log("\t wrapping around to the left 2")
+                leftDot = grid[nY].find('.')
+                leftWall = grid[nY].find('#')
+                nX = min(leftDot if leftDot >= 0 else INF,
+                         leftWall if leftWall >= 0 else INF)
+            elif dY == -1:
+                # Wrap around to the bottom
+                log("\t wrapping around to the bottom 2")
+                nY = max(col_grid[nX].rfind('.'), col_grid[nX].rfind('#'))
+            elif dY == 1:
+                # Wrap around to the top
+                log("\t wrapping around to the top 2")
+                topDot = col_grid[nX].find('.')
+                topWall = col_grid[nX].find('#')
+                nY = min(topDot if topDot >= 0 else INF,
+                         topWall if topWall >= 0 else INF)
 
-        if 0 > nY or (col_grid[nX]):
-            # Vertical wrap to bottom row of column
-            nY = Max(col_grid[nX].rfind('.'), col_grid[nX].rfind('#'))
-        if nY >= len(col_grid[nX]) or (cold_grid[nX] == ' ' and dY == 1):
-
-            # If we've hit a wall, fall back!
+        # If we've hit a wall, fall back!
         if grid[nY][nX] == '#':
             nX, nY = cX, cY
             break
 
+        cX, cY = nX, nY
+
     # Not matter what, turn
     new_dir = CLOCKWISE_TURN[dir] if turnDir == 'R' else COUNTERCLOCKWISE_TURN[dir]
 
-    return (nX, nY), new_dir
+    return (cX, cY), new_dir
 
 
 def part_1():
@@ -92,4 +135,15 @@ def part_1():
     dir = (1, 0)  # Start moving right
 
     for move in moves:
+        log(f"Starting at {pos} moving {dir} for {move}")
         pos, dir = move_once(grid, col_grid, pos, dir, move)
+    log(f"Ended at {pos} moving {dir}")
+
+    facing_score = {
+        (1, 0): 0,  # Right
+        (0, 1): 1,  # Down
+        (-1, 0): 2,  # Left
+        (0, -1): 3,  # Up
+    }
+    facing = facing_score[CLOCKWISE_TURN[dir]]
+    return ((pos[1] + 1) * 1000) + ((pos[0] + 1) * 4) + facing
