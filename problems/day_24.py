@@ -1,5 +1,7 @@
-from collections import defaultdict, deque
+import math
+from collections import defaultdict
 from lib.helpers import log, get_strings_by_lines
+import heapq
 
 direction_fn = {
     '^': lambda x, y: (x, y - 1),
@@ -67,7 +69,7 @@ def iter_grid(grid, height, width):
 def next_options(next_grid, cx, cy):
     opts = []
     # Look up, down, left, and right, and still
-    for (dx, dy) in [(0, -1), (0, 1), (-1, 0), (1, 0), (0, 0)]:
+    for (dx, dy) in [(0, 0), (0, -1), (-1, 0), (0, 1), (1, 0)]:
         if out_of_bounds(cx + dx, cy + dy, next_grid):
             continue
         if len(next_grid[cy + dy][cx + dx]) > 0:
@@ -81,10 +83,78 @@ def next_options(next_grid, cx, cy):
 def part_1():
     grid, height, width = parse_inputs()
 
-    # Basic BFS
-    init = (0, -1)
+    grid_caches = {}
 
-    print_grid(grid, height, width)
-    log("Iterating /n")
-    next_grid = iter_grid(grid, height, width)
-    print_grid(next_grid, height, width)
+    # Basic DFS with a queue
+    init = (0, -1)
+    target = (width - 1, height - 1)
+
+    # Need a custom class for the heap
+    class PriorityEntry(object):
+        def __init__(self, pos, cost):
+            self.pos = pos
+            self.cost = cost
+            # Minimize Manhattan distance
+            self.priority = ((width - pos[0]) + (height - pos[1]))
+
+        def __lt__(self, other):
+            return self.priority < other.priority
+
+    best_seen = 341
+    pqueue = []
+    seen = set()
+
+    # Pre-load the blizzard cache
+    last_bliz = grid
+    wait = 0
+    while len(pqueue) < 1000 and wait < 341:
+        if len(last_bliz[0][0]) == 0:
+            pqueue += [PriorityEntry(init, wait)]
+            seen |= {(init[0], init[1], wait)}
+            log(f"Adding wait of {wait}")
+        grid_caches[wait] = last_bliz
+        wait += 1
+        last_bliz = iter_grid(last_bliz, height, width)
+
+    # While there is a queue
+    closest = math.inf
+    while len(pqueue) > 0:
+        if max([s.priority for s in pqueue]) < closest:
+            closest = max([s.priority for s in pqueue])
+            log(f"New Closest: {closest}")
+        # Pop the first item
+        entry = heapq.heappop(pqueue)
+        cx, cy = entry.pos
+        cost = entry.cost
+
+        # If we've seen this before, skip it
+        if cost >= best_seen:
+            continue
+
+        # If we've reached the target, update the best seen
+        if (cx, cy) == target:
+            best_seen = cost
+            log(f"Setting Best Seen: {best_seen}")
+            continue
+
+        # Get the next grid (with caching)
+        next_grid = grid_caches.get(
+            cost + 1, iter_grid(grid_caches[cost], height, width))
+        grid_caches[cost + 1] = next_grid
+
+        # Get the next options
+        opts = next_options(next_grid, cx, cy)
+
+        # Add the next valid options to the queue
+        for (nx, ny) in opts:
+            if (nx, ny) == target:
+                best_seen = cost + 1
+                log(f"Setting Best Seen: {best_seen}")
+                continue
+            if cost + 1 > best_seen:
+                continue
+            if (nx, ny, cost + 1) not in seen:
+                seen |= {(nx, ny, cost + 1)}
+                heapq.heappush(pqueue, PriorityEntry((nx, ny), cost + 1))
+
+    return best_seen + 1
