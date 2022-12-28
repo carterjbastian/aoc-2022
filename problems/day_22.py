@@ -58,6 +58,64 @@ COUNTERCLOCKWISE_TURN = {
 INF = 1000000000000  # yikes
 
 
+def part_one_wrap(nX, nY, dX, dY, grid, col_grid, max_row_len, max_col_len):
+    # Wrap Logic!
+    # We are out of bounds horizontally if nX < 0 or nX >= len(grid[nY])
+    if nX < 0:
+        # Wrap around to the right
+        log("\t wrapping around to the right")
+        rightDot = grid[nY].rfind('.')
+        rightWall = grid[nY].rfind('#')
+        nX = max(rightDot if rightDot >= 0 else -1 * INF,
+                 rightWall if rightWall >= 0 else -1 * INF)
+    elif nY < 0:
+        # Wrap around to the bottom
+        log("\t wrapping around to the bottom")
+        nY = max(col_grid[nX].rfind('.'), col_grid[nX].rfind('#'))
+    elif nY >= max_col_len:
+        # Wrap around to the top
+        log("\t wrapping around to the top")
+        topDot = col_grid[nX].find('.')
+        topWall = col_grid[nX].find('#')
+        nY = min(topDot if topDot >= 0 else INF,
+                 topWall if topWall >= 0 else INF)
+    elif nX >= max_row_len:
+        # Wrap around to the left
+        log("\t wrapping around to the left")
+        leftDot = grid[nY].find('.')
+        leftWall = grid[nY].find('#')
+        nX = min(leftDot if leftDot >= 0 else INF,
+                 leftWall if leftWall >= 0 else INF)
+    elif grid[nY][nX] == ' ':
+        if dX == -1:
+            # Wrap around to the right
+            log("\t wrapping around to the right 2")
+            rightDot = grid[nY].rfind('.')
+            rightWall = grid[nY].rfind('#')
+            nX = max(rightDot if rightDot >= 0 else -1 * INF,
+                     rightWall if rightWall >= 0 else -1 * INF)
+        elif dX == 1:
+            # Wrap around to left
+            log("\t wrapping around to the left 2")
+            leftDot = grid[nY].find('.')
+            leftWall = grid[nY].find('#')
+            nX = min(leftDot if leftDot >= 0 else INF,
+                     leftWall if leftWall >= 0 else INF)
+        elif dY == -1:
+            # Wrap around to the bottom
+            log("\t wrapping around to the bottom 2")
+            nY = max(col_grid[nX].rfind('.'), col_grid[nX].rfind('#'))
+        elif dY == 1:
+            # Wrap around to the top
+            log("\t wrapping around to the top 2")
+            topDot = col_grid[nX].find('.')
+            topWall = col_grid[nX].find('#')
+            nY = min(topDot if topDot >= 0 else INF,
+                     topWall if topWall >= 0 else INF)
+
+    return nX, nY
+
+
 def move_once(grid, col_grid, pos, dir, move):
     global INF
     cX, cY = pos
@@ -70,59 +128,8 @@ def move_once(grid, col_grid, pos, dir, move):
     for _ in range(moveCount):
         nX, nY = cX + dX, cY + dY
 
-        # Wrap Logic!
-        # We are out of bounds horizontally if nX < 0 or nX >= len(grid[nY])
-        if nX < 0:
-            # Wrap around to the right
-            log("\t wrapping around to the right")
-            rightDot = grid[nY].rfind('.')
-            rightWall = grid[nY].rfind('#')
-            nX = max(rightDot if rightDot >= 0 else -1 * INF,
-                     rightWall if rightWall >= 0 else -1 * INF)
-        elif nY < 0:
-            # Wrap around to the bottom
-            log("\t wrapping around to the bottom")
-            nY = max(col_grid[nX].rfind('.'), col_grid[nX].rfind('#'))
-        elif nY >= max_col_len:
-            # Wrap around to the top
-            log("\t wrapping around to the top")
-            topDot = col_grid[nX].find('.')
-            topWall = col_grid[nX].find('#')
-            nY = min(topDot if topDot >= 0 else INF,
-                     topWall if topWall >= 0 else INF)
-        elif nX >= max_row_len:
-            # Wrap around to the left
-            log("\t wrapping around to the left")
-            leftDot = grid[nY].find('.')
-            leftWall = grid[nY].find('#')
-            nX = min(leftDot if leftDot >= 0 else INF,
-                     leftWall if leftWall >= 0 else INF)
-        elif grid[nY][nX] == ' ':
-            if dX == -1:
-                # Wrap around to the right
-                log("\t wrapping around to the right 2")
-                rightDot = grid[nY].rfind('.')
-                rightWall = grid[nY].rfind('#')
-                nX = max(rightDot if rightDot >= 0 else -1 * INF,
-                         rightWall if rightWall >= 0 else -1 * INF)
-            elif dX == 1:
-                # Wrap around to left
-                log("\t wrapping around to the left 2")
-                leftDot = grid[nY].find('.')
-                leftWall = grid[nY].find('#')
-                nX = min(leftDot if leftDot >= 0 else INF,
-                         leftWall if leftWall >= 0 else INF)
-            elif dY == -1:
-                # Wrap around to the bottom
-                log("\t wrapping around to the bottom 2")
-                nY = max(col_grid[nX].rfind('.'), col_grid[nX].rfind('#'))
-            elif dY == 1:
-                # Wrap around to the top
-                log("\t wrapping around to the top 2")
-                topDot = col_grid[nX].find('.')
-                topWall = col_grid[nX].find('#')
-                nY = min(topDot if topDot >= 0 else INF,
-                         topWall if topWall >= 0 else INF)
+        nX, nY = part_one_wrap(nX, nY, dX, dY, grid,
+                               col_grid, max_row_len, max_col_len)
 
         # If we've hit a wall, fall back!
         if grid[nY][nX] == '#':
