@@ -80,39 +80,42 @@ def next_options(next_grid, cx, cy):
     return opts
 
 
-def part_1():
-    grid, height, width = parse_inputs()
+grid_caches = {}
 
-    grid_caches = {}
 
-    # Basic DFS with a queue
-    init = (0, -1)
-    target = (width - 1, height - 1)
+class PriorityEntry(object):
+    def __init__(self, pos, cost, height, width, inverted=False):
+        self.pos = pos
+        self.cost = cost
+        self.inverted = inverted
+        # Minimize Manhattan distance
+        self.priority = (
+            (width - pos[0]) + (height - pos[1])) if not inverted else (pos[0] + pos[1])
+
+    def __lt__(self, other):
+        return self.priority < other.priority
+
+
+def dfs(target, initPos, initCost, height, width, inverted=False):
+    global grid_caches
 
     # Need a custom class for the heap
-    class PriorityEntry(object):
-        def __init__(self, pos, cost):
-            self.pos = pos
-            self.cost = cost
-            # Minimize Manhattan distance
-            self.priority = ((width - pos[0]) + (height - pos[1]))
-
-        def __lt__(self, other):
-            return self.priority < other.priority
-
-    best_seen = 341
+    best_seen = initCost + 341
     pqueue = []
     seen = set()
 
     # Pre-load the blizzard cache
-    last_bliz = grid
+    last_bliz = grid_caches[initCost]
     wait = 0
     while len(pqueue) < 1000 and wait < 341:
-        if len(last_bliz[0][0]) == 0:
-            pqueue += [PriorityEntry(init, wait)]
-            seen |= {(init[0], init[1], wait)}
-            log(f"Adding wait of {wait}")
-        grid_caches[wait] = last_bliz
+        open = len(last_bliz[0][0]) == 0 if not inverted else len(
+            last_bliz[-1][-1]) == 0
+        if open:
+            pqueue += [PriorityEntry(initPos, initCost +
+                                     wait, height, width, inverted)]
+            seen |= {(initPos[0], initPos[1], initCost + wait)}
+            log(f"Adding wait of {initCost + wait}")
+        grid_caches[initCost + wait] = last_bliz
         wait += 1
         last_bliz = iter_grid(last_bliz, height, width)
 
@@ -155,6 +158,43 @@ def part_1():
                 continue
             if (nx, ny, cost + 1) not in seen:
                 seen |= {(nx, ny, cost + 1)}
-                heapq.heappush(pqueue, PriorityEntry((nx, ny), cost + 1))
+                heapq.heappush(pqueue, PriorityEntry(
+                    (nx, ny), cost + 1, height, width, inverted))
 
     return best_seen + 1
+
+
+def part_1():
+    grid, height, width = parse_inputs()
+    global grid_caches
+    grid_caches[0] = grid
+
+    # Basic DFS with a queue
+    init = (0, -1)
+    target = (width - 1, height - 1)
+
+    best_seen = dfs(target, init, 0, height, width, inverted=False)
+    return best_seen
+
+
+def part_2():
+    grid, height, width = parse_inputs()
+    global grid_caches
+    grid_caches[0] = grid
+
+    # Basic DFS with a queue
+    init = (0, -1)
+    target = (width - 1, height - 1)
+
+    best_seen = dfs(target, init, 0, height, width, inverted=False)
+    log(best_seen)
+
+    best_back = dfs((0, 0), (width - 1, height),
+                    best_seen, height, width, inverted=True)
+    log(best_back)
+
+    # Once more!
+    best_last = dfs(target, init, best_back,
+                    height, width, inverted=False)
+    log(best_last)
+    return best_last
