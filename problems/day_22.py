@@ -15,7 +15,11 @@ def parse_inputs():
     grid = get_strings_by_lines('22.txt')
 
     max_len = max(len(r) for r in grid)
-    log(f"Max len: {max_len}")
+    # Make the grid evenly sized
+    for i in range(len(grid)):
+        while len(grid[i]) < max_len:
+            grid[i] += " "
+    min_len = min(len(r) for r in grid)
     col_grid = []
 
     for col in range(max_len):
@@ -25,6 +29,14 @@ def parse_inputs():
                 col_grid[col] += grid[row][col]
             else:
                 col_grid[col] += " "
+
+    max_col_len = max(len(c) for c in col_grid)
+    min_col_len = min(len(c) for c in col_grid)
+
+    log(f"Max len: {max_len}")
+    log(f"Min len: {min_len}")
+    log(f"Max col len: {max_col_len}")
+    log(f"Min col len: {min_col_len}")
 
     return moves, grid, col_grid
 
@@ -63,7 +75,10 @@ def move_once(grid, col_grid, pos, dir, move):
         if nX < 0:
             # Wrap around to the right
             log("\t wrapping around to the right")
-            nX = max(grid[nY].rfind('.'), grid[nY].rfind('#'))
+            rightDot = grid[nY].rfind('.')
+            rightWall = grid[nY].rfind('#')
+            nX = max(rightDot if rightDot >= 0 else -1 * INF,
+                     rightWall if rightWall >= 0 else -1 * INF)
         elif nY < 0:
             # Wrap around to the bottom
             log("\t wrapping around to the bottom")
@@ -75,7 +90,7 @@ def move_once(grid, col_grid, pos, dir, move):
             topWall = col_grid[nX].find('#')
             nY = min(topDot if topDot >= 0 else INF,
                      topWall if topWall >= 0 else INF)
-        elif nX >= min(max_row_len, len(grid[nY])):
+        elif nX >= max_row_len:
             # Wrap around to the left
             log("\t wrapping around to the left")
             leftDot = grid[nY].find('.')
@@ -86,7 +101,10 @@ def move_once(grid, col_grid, pos, dir, move):
             if dX == -1:
                 # Wrap around to the right
                 log("\t wrapping around to the right 2")
-                nX = max(grid[nY].rfind('.'), grid[nY].rfind('#'))
+                rightDot = grid[nY].rfind('.')
+                rightWall = grid[nY].rfind('#')
+                nX = max(rightDot if rightDot >= 0 else -1 * INF,
+                         rightWall if rightWall >= 0 else -1 * INF)
             elif dX == 1:
                 # Wrap around to left
                 log("\t wrapping around to the left 2")
