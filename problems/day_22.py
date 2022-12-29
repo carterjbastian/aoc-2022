@@ -145,7 +145,7 @@ else:
             # DOWN -> 3 going LEFT
             DOWN: lambda x, y: (
                 (CUBE_LOCATION[3][0] + CUBE_DIM - 1,
-                 CUBE_LOCATION[3][1] + (y - CUBE_LOCATION[1][1])),
+                 CUBE_LOCATION[3][1] + (x - CUBE_LOCATION[1][0])),
                 LEFT
             ),
         },
@@ -172,7 +172,7 @@ else:
             ),
             # RIGHT -> 1 going UP
             RIGHT: lambda x, y: (
-                (x + (y - CUBE_LOCATION[3][1]),
+                (CUBE_LOCATION[1][0] + (y - CUBE_LOCATION[3][1]),
                  CUBE_LOCATION[1][1] + CUBE_DIM - 1),
                 UP
             ),
@@ -208,7 +208,7 @@ else:
         6: {
             # LEFT -> 2 going DOWN
             LEFT: lambda x, y: (
-                (y - CUBE_LOCATION[6][1] + CUBE_LOCATION[2][0],
+                (CUBE_LOCATION[2][0] + (y - CUBE_LOCATION[6][1]),
                  0),
                 DOWN
             ),
