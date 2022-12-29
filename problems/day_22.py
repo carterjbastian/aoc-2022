@@ -145,6 +145,7 @@ else:
             # DOWN -> 3 going LEFT
             DOWN: lambda x, y: (
                 (CUBE_LOCATION[3][0] + CUBE_DIM - 1,
+                 # PROBLEM
                  CUBE_LOCATION[3][1] + (x - CUBE_LOCATION[1][0])),
                 LEFT
             ),
@@ -171,6 +172,7 @@ else:
                 DOWN
             ),
             # RIGHT -> 1 going UP
+            # PROBLEM
             RIGHT: lambda x, y: (
                 (CUBE_LOCATION[1][0] + (y - CUBE_LOCATION[3][1]),
                  CUBE_LOCATION[1][1] + CUBE_DIM - 1),
@@ -296,7 +298,7 @@ def part_two_wrap(cX, cY, dX, dY, grid, max_x, max_y):
     # Which cube are we in?
     found_face = 0
     for face, (x, y) in CUBE_LOCATION.items():
-        if x <= cX <= x + CUBE_DIM and y <= cY <= y + CUBE_DIM:
+        if x <= cX < x + CUBE_DIM and y <= cY < y + CUBE_DIM:
             found_face = face
             break
 
