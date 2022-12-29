@@ -10,224 +10,115 @@ LEFT = (-1, 0)
 UP = (0, -1)
 DOWN = (0, 1)
 
-if TEST_MODE:
-    CUBE_DIM = 4
-    CUBE_LOCATION = {
-        1: (CUBE_DIM * 2, 0),
-        2: (0, CUBE_DIM),
-        3: (CUBE_DIM, CUBE_DIM),
-        4: (CUBE_DIM * 2, CUBE_DIM),
-        5: (CUBE_DIM * 2, CUBE_DIM * 2),
-        6: (CUBE_DIM * 3, CUBE_DIM * 2),
-    }
-    CUBE_WRAP_FNS = {
-        1: {
-            # leaving right -> Right of 6 heading left
-            RIGHT: lambda x, y: (
-                (CUBE_LOCATION[6][0] + CUBE_DIM - 1,
-                 CUBE_LOCATION[6][1] + y),
-                LEFT
-            ),
-            # left -> top of 3 heading down
-            LEFT: lambda x, y: (
-                (CUBE_LOCATION[3][0] + y,
-                 CUBE_LOCATION[3][1]),
-                DOWN
-            ),
-            # up -> Top of 2 heading down
-            UP: lambda x, y: (
-                ((CUBE_LOCATION[2][0] + CUBE_DIM) - (x - CUBE_LOCATION[1][0]),
-                 CUBE_LOCATION[2][1]),
-                DOWN
-            ),
-        },
-        2: {
-            # up -> Top of 1 heading down
-            UP: lambda x, y: (
-                (CUBE_LOCATION[1][0] + CUBE_DIM - (x - CUBE_LOCATION[2][0]),
-                 CUBE_LOCATION[1][1]),
-                DOWN
-            ),
-            # left -> bottom of 6 heading up
-            LEFT: lambda x, y: (
-                ((CUBE_LOCATION[6][0] + CUBE_DIM) - (y - CUBE_LOCATION[2][1]),
-                 CUBE_LOCATION[6][1] + CUBE_DIM - 1),
-                UP
-            ),
-            # down -> Bottom of 5 heading up
-            DOWN: lambda x, y: (
-                (CUBE_LOCATION[5][0] + (CUBE_LOCATION[1][0] + CUBE_DIM - x),
-                 CUBE_LOCATION[5][1] + CUBE_DIM - 1),
-                UP
-            ),
-        },
-        3: {
-            # down -> Left of 5 heading right
-            DOWN: lambda x, y: (
-                (CUBE_LOCATION[5][0],
-                 CUBE_LOCATION[5][1] + (CUBE_LOCATION[3][0] + CUBE_DIM - x)),
-                RIGHT
-            ),
-            # up -> Left of 1 heading right
-            UP: lambda x, y: (
-                (CUBE_LOCATION[1][0],
-                 CUBE_LOCATION[1][1] + (x - CUBE_LOCATION[3][0])),
-                RIGHT
-            ),
-        },
-        4: {
-            # right -> Top of 6 heading down
-            RIGHT: lambda x, y: (
-                (CUBE_LOCATION[6][0] + (CUBE_LOCATION[4][1] + CUBE_DIM - 1 - y),
-                 CUBE_LOCATION[6][1]),
-                DOWN
-            ),
-        },
-        5: {
-            # Left -> Bottom of 3 heading up
-            LEFT: lambda x, y: (
-                ((CUBE_LOCATION[3][0] + CUBE_DIM) - (y - CUBE_LOCATION[5][1]),
-                 CUBE_LOCATION[3][1] + CUBE_DIM - 1),
-                UP
-            ),
-            # Down -> Bottom of 2 heading up
-            DOWN: lambda x, y: (
-                ((CUBE_LOCATION[2][0] + CUBE_DIM - 1) - (x - CUBE_LOCATION[5][0]),
-                 CUBE_LOCATION[2][1] + CUBE_DIM - 1),
-                UP
-            ),
-        },
-        6: {
-            # RIGHT -> Right of 4 heading left
-            UP: lambda x, y: (
-                (CUBE_LOCATION[4][0] + CUBE_DIM - 1,
-                 CUBE_LOCATION[4][1] + (CUBE_LOCATION[6][0] + CUBE_DIM - x)),
-                LEFT
-            ),
-            # Right -> Right of 1 heading left
-            RIGHT: lambda x, y: (
-                (CUBE_LOCATION[1][0] + CUBE_DIM - 1,
-                 CUBE_LOCATION[1][1] + (CUBE_LOCATION[6][1] + CUBE_DIM - y)),
-                LEFT
-            ),
-            # Down -> Left of 2 heading right
-            DOWN: lambda x, y: (
-                (CUBE_LOCATION[2][0],
-                 CUBE_LOCATION[2][1] + CUBE_DIM - (x - CUBE_LOCATION[6][0])),
-                RIGHT
-            ),
-        },
-    }
-else:
-    CUBE_DIM = 50
-    CUBE_LOCATION = {
-        1: (CUBE_DIM * 2, 0),
-        2: (CUBE_DIM, 0),
-        3: (CUBE_DIM, CUBE_DIM),
-        4: (CUBE_DIM, CUBE_DIM * 2),
-        5: (0, CUBE_DIM * 2),
-        6: (0, CUBE_DIM * 3),
-    }
-    CUBE_WRAP_FNS = {
-        1: {
-            # UP -> 6 going UP
-            UP: lambda x, y: (
-                (x - CUBE_LOCATION[1][0],
-                 CUBE_LOCATION[6][1] + CUBE_DIM - 1),
-                UP
-            ),
-            # RIGHT -> 4 going LEFT
-            RIGHT: lambda x, y: (
-                (CUBE_LOCATION[4][0] + CUBE_DIM - 1,
-                 CUBE_LOCATION[4][1] + CUBE_DIM - y),
-                LEFT
-            ),
-            # DOWN -> 3 going LEFT
-            DOWN: lambda x, y: (
-                (CUBE_LOCATION[3][0] + CUBE_DIM - 1,
-                 # PROBLEM
-                 CUBE_LOCATION[3][1] + (x - CUBE_LOCATION[1][0])),
-                LEFT
-            ),
-        },
-        2: {
-            # UP -> 6 going RIGHT
-            UP: lambda x, y: (
-                (0,
-                 CUBE_LOCATION[6][1] + (x - CUBE_LOCATION[2][0])),
-                RIGHT
-            ),
-            # LEFT -> 5 going RIGHT
-            LEFT: lambda x, y: (
-                (0,
-                 CUBE_LOCATION[5][1] + CUBE_DIM - y),
-                RIGHT
-            ),
-        },
-        3: {
-            # LEFT -> 5 going DOWN
-            LEFT: lambda x, y: (
-                (y - CUBE_LOCATION[3][1],
-                 CUBE_LOCATION[5][1]),
-                DOWN
-            ),
-            # RIGHT -> 1 going UP
-            # PROBLEM
-            RIGHT: lambda x, y: (
-                (CUBE_LOCATION[1][0] + (y - CUBE_LOCATION[3][1]),
-                 CUBE_LOCATION[1][1] + CUBE_DIM - 1),
-                UP
-            ),
-        },
-        4: {
-            # RIGHT -> 1 going LEFT
-            RIGHT: lambda x, y: (
-                (CUBE_LOCATION[1][0] + CUBE_DIM - 1,
-                 CUBE_LOCATION[4][1] + CUBE_DIM - y),
-                LEFT
-            ),
-            # DOWN -> 6 going LEFT
-            DOWN: lambda x, y: (
-                (CUBE_LOCATION[6][0] + CUBE_DIM - 1,
-                 CUBE_LOCATION[6][1] + CUBE_DIM - (CUBE_LOCATION[4][0] + CUBE_DIM - x)),
-                LEFT
-            ),
-        },
-        5: {
-            # UP -> 3 going RIGHT
-            UP: lambda x, y: (
-                (CUBE_LOCATION[3][0],
-                 CUBE_LOCATION[3][1] + x),
-                RIGHT
-            ),
-            # LEFT -> 2 going RIGHT
-            LEFT: lambda x, y: (
-                (CUBE_LOCATION[2][0],
-                 CUBE_LOCATION[5][1] + CUBE_DIM - y),
-                RIGHT
-            ),
-        },
-        6: {
-            # LEFT -> 2 going DOWN
-            LEFT: lambda x, y: (
-                (CUBE_LOCATION[2][0] + (y - CUBE_LOCATION[6][1]),
-                 0),
-                DOWN
-            ),
-            # DOWN -> 1 going DOWN
-            DOWN: lambda x, y: (
-                (CUBE_LOCATION[1][0] + x,
-                 0),
-                DOWN
-            ),
-            # RIGHT -> 4 going UP
-            RIGHT: lambda x, y: (
-                (CUBE_LOCATION[4][0] + (y - CUBE_LOCATION[6][1]),
-                 CUBE_LOCATION[4][1] + CUBE_DIM - 1),
-                UP
-            ),
-        },
-    }
+CUBE_DIM = 5 if TEST_MODE else 50
+CUBE_LOCATION = {
+    1: (CUBE_DIM * 2, 0),
+    2: (CUBE_DIM, 0),
+    3: (CUBE_DIM, CUBE_DIM),
+    4: (CUBE_DIM, CUBE_DIM * 2),
+    5: (0, CUBE_DIM * 2),
+    6: (0, CUBE_DIM * 3),
+}
+CUBE_WRAP_FNS = {
+    1: {
+        # UP -> 6 going UP
+        UP: lambda x, y: (
+            (x - CUBE_LOCATION[1][0],
+                CUBE_LOCATION[6][1] + CUBE_DIM - 1),
+            UP
+        ),
+        # RIGHT -> 4 going LEFT
+        RIGHT: lambda x, y: (
+            (CUBE_LOCATION[4][0] + CUBE_DIM - 1,
+                CUBE_LOCATION[4][1] + CUBE_DIM - 1 - y),
+            LEFT
+        ),
+        # DOWN -> 3 going LEFT
+        DOWN: lambda x, y: (
+            (CUBE_LOCATION[3][0] + CUBE_DIM - 1,
+                # PROBLEM
+                CUBE_LOCATION[3][1] + (x - CUBE_LOCATION[1][0])),
+            LEFT
+        ),
+    },
+    2: {
+        # UP -> 6 going RIGHT
+        UP: lambda x, y: (
+            (0,
+                CUBE_LOCATION[6][1] + (x - CUBE_LOCATION[2][0])),
+            RIGHT
+        ),
+        # LEFT -> 5 going RIGHT
+        LEFT: lambda x, y: (
+            (0,
+                CUBE_LOCATION[5][1] + CUBE_DIM - 1 - y),
+            RIGHT
+        ),
+    },
+    3: {
+        # LEFT -> 5 going DOWN
+        LEFT: lambda x, y: (
+            (y - CUBE_LOCATION[3][1],
+                CUBE_LOCATION[5][1]),
+            DOWN
+        ),
+        # RIGHT -> 1 going UP
+        # PROBLEM
+        RIGHT: lambda x, y: (
+            (CUBE_LOCATION[1][0] + (y - CUBE_LOCATION[3][1]),
+                CUBE_LOCATION[1][1] + CUBE_DIM - 1),
+            UP
+        ),
+    },
+    4: {
+        # RIGHT -> 1 going LEFT
+        RIGHT: lambda x, y: (
+            (CUBE_LOCATION[1][0] + CUBE_DIM - 1,
+                CUBE_LOCATION[4][1] + CUBE_DIM - 1 - y),
+            LEFT
+        ),
+        # DOWN -> 6 going LEFT
+        DOWN: lambda x, y: (
+            (CUBE_LOCATION[6][0] + CUBE_DIM - 1,
+                CUBE_LOCATION[6][1] + CUBE_DIM - (CUBE_LOCATION[4][0] + CUBE_DIM - x)),
+            LEFT
+        ),
+    },
+    5: {
+        # UP -> 3 going RIGHT
+        UP: lambda x, y: (
+            (CUBE_LOCATION[3][0],
+                CUBE_LOCATION[3][1] + x),
+            RIGHT
+        ),
+        # LEFT -> 2 going RIGHT
+        LEFT: lambda x, y: (
+            (CUBE_LOCATION[2][0],
+                CUBE_LOCATION[5][1] + CUBE_DIM - 1 - y),
+            RIGHT
+        ),
+    },
+    6: {
+        # LEFT -> 2 going DOWN
+        LEFT: lambda x, y: (
+            (CUBE_LOCATION[2][0] + (y - CUBE_LOCATION[6][1]),
+                0),
+            DOWN
+        ),
+        # DOWN -> 1 going DOWN
+        DOWN: lambda x, y: (
+            (CUBE_LOCATION[1][0] + x,
+                0),
+            DOWN
+        ),
+        # RIGHT -> 4 going UP
+        RIGHT: lambda x, y: (
+            (CUBE_LOCATION[4][0] + (y - CUBE_LOCATION[6][1]),
+                CUBE_LOCATION[4][1] + CUBE_DIM - 1),
+            UP
+        ),
+    },
+}
 
 
 def parse_inputs():
@@ -302,7 +193,7 @@ def part_two_wrap(cX, cY, dX, dY, grid, max_x, max_y):
             found_face = face
             break
 
-    log(f"Out of bounds in cube {found_face} moving {dX}, {dY}")
+    #log(f"Out of bounds in cube {found_face} moving {dX}, {dY}")
     newPos, newDir = CUBE_WRAP_FNS[found_face][(dX, dY)](cX, cY)
 
     # Figure out which cube
@@ -382,8 +273,9 @@ def move_once(grid, col_grid, pos, dir, move, cubed=False):
             dX, dY = dir
             nX, nY, ndX, ndY = part_two_wrap(
                 cX, cY, dX, dY, grid, max_row_len, max_col_len)
-            log(f"Moving from {cX}, {cY} to {nX}, {nY}")
+            # log(f"Moving from {cX}, {cY} to {nX}, {nY}")
             if grid[nY][nX] == '#':
+                log(f"Hit a wall! Falling back to {cX}, {cY}")
                 nX, nY = cX, cY
                 break
             else:
@@ -401,6 +293,7 @@ def move_once(grid, col_grid, pos, dir, move, cubed=False):
         cX, cY = nX, nY
 
     # Not matter what, turn
+    #log(f"Current Dir: {dir}")
     new_dir = CLOCKWISE_TURN[dir] if turnDir == 'R' else COUNTERCLOCKWISE_TURN[dir]
 
     return (cX, cY), new_dir
@@ -436,8 +329,102 @@ def part_1():
     return ((pos[1] + 1) * 1000) + ((pos[0] + 1) * 4) + facing
 
 
+def unit_test():
+    moves, grid, col_grid = parse_inputs()
+    # FACE 1:
+    # UP: (11, 0) + (0, -1) => (1, 19) + (0, -1)
+    nx, ny, dx, dy = part_two_wrap(
+        11, 0, 0, -1, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 1 Going Up: (11, 0) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(1, 19) going (0, -1)")
+
+    # RIGHT: (14, 1) + (1, 0) => (9, 13) + (-1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        14, 1, 1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(f"Face 1 Going Right: (14, 1) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(9, 13) going (-1, 0))")
+
+    # DOWN: (11,4) + (0, 1) => (9, 6) + (-1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        11, 4, 0, 1, grid, len(grid[0]), len(col_grid[0]))
+    log(f"Face 1 Going Down: (11, 4) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(9, 6) going (-1, 0))")
+
+    # FACE 2:
+    # UP: (6, 0) + (0, -1) =? (0, 16) + (1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        6, 0, 0, -1, grid, len(grid[0]), len(col_grid[0]))
+    log(f"Face 2 Going Up: (6, 0) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(0, 16) going (1, 0)")
+
+    # LEFT: (5, 1) + (-1, 0) => (0, 13) + (1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        5, 1, -1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 2 Going Left: (5, 1) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(0, 13) going (1, 0)")
+
+    # FACE 3:
+    # LEFT: (5, 6) + (-1, 0) => (1, 10) + (0, 1)
+    nx, ny, dx, dy = part_two_wrap(
+        5, 6, -1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 3 Going Left: (5, 6) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(1, 10) going (0, 1)")
+
+    # RIGHT: (9, 6) + (1, 0) => (11, 4) + (0, -1)
+    nx, ny, dx, dy = part_two_wrap(
+        9, 6, 1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 3 Going right: (9, 6) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(11, 4) going (0, -1)")
+
+    # FACE 4:
+    # RIGHT: (9, 11) + (1, 0) => (14 , 3) + (-1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        9, 11, 1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 4 Going right: (9, 11) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(14, 3) going (-1, 0)")
+
+    # DOWN: (6, 14) + (0, 1) => (4, 16) + (-1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        6, 14, 0, 1, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 4 Going DOWN: (6, 14) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(4, 16) going (-1, 0)")
+
+    # FACE 5:
+    # UP: (1, 10) + (0, -1) => (5, 6) + (1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        1, 10, 0, -1, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 5 Going UP: (1, 10) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(5, 6) going (1, 0)")
+
+    # LEFT: (0, 11) + (-1, 0) => (5, 3) + (1, 0)
+    nx, ny, dx, dy = part_two_wrap(
+        0, 11, -1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 5 Going LEFT: (0, 11) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(5, 3) going (1, 0)")
+
+    # FACE 6:
+    # LEFT: (0, 16) + (-1, 0) => (6, 0) + (0, 1)
+    nx, ny, dx, dy = part_two_wrap(
+        0, 16, -1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 6 Going LEFT: (0, 11) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(6, 0) going (0, 1)")
+
+    # RIGHT: (4, 18) + (1, 0) + => (8, 14) + (0, -1)
+    nx, ny, dx, dy = part_two_wrap(
+        4, 18, 1, 0, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 6 Going RIGHT: (4, 18) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(8, 14) going (0, -1)")
+
+    # DOWN: (1, 19) + (0, 1) => (11, 0) + (0, 1)
+    nx, ny, dx, dy = part_two_wrap(
+        1, 19, 0, 1, grid, len(grid[0]), len(col_grid[0]))
+    log(
+        f"Face 6 Going DOWN: (1, 19) -> \n\t({nx}, {ny}) going ({dx}, {dy}), expecting... \n\t(11, 0) going (0, 1)")
+
+
 def part_2():
     moves, grid, col_grid = parse_inputs()
+    # Testing
+    if TEST_MODE:
+        unit_test()
+        return 100
 
     log("\n\nRows:")
     for r in grid:
